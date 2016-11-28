@@ -12,17 +12,17 @@
 using namespace std;
 
 // Function Prototypes
-char* decryptLine(char* buffer);
-char* readLine(char* buffer);
+char* decryptPacket(char* buffer);
+char* readPacket(char* buffer);
 
 int main()
 {
 	// Open the input file in binary read mode
 	ifstream inputFile;
 	inputFile.open("input.dat", ios::in | ios::binary);
-	// Stop eating new lines in binary mode!!!
+	// Stop eating new lines in binary mode
 	inputFile.unsetf(std::ios::skipws);
-	// Get a file handle to output in binary mode
+	// Get a file pointer to output in binary mode
 	FILE* outputFile;
 	fopen_s(&outputFile, "output.txt", "wb");
 
@@ -46,12 +46,12 @@ int main()
 	// If the file exists for reading
 	if (inputFile.is_open())
 	{
-		// While there is more data to decrypt
-		// Each line should be a string of UDP data
+		// Peek the next byte and make sure it isn't end of file
 		while (inputFile.peek() != EOF)
 		{
+			// Increment our counter
 			packetCount++;
-			cout << "Reading packet #" << packetCount<< "\n";
+			printf("Packet #%hu\n", packetCount);
 			fprintf(outputFile, "Packet #%hu\n", packetCount);
 
 			struct packet packet;
@@ -66,7 +66,7 @@ int main()
 			{
 				bePacketCount += 2;
 				packetCount++;
-				fprintf(outputFile, "Found BE Packet. . . Skipping next two packets.\n");
+				fprintf(outputFile, "Found BattlEye Packet. . . Skipping next 36 bytes.\n");
 				for (int i = 0; i < 34; i++) {
 					inputFile.get();
 				}
@@ -81,7 +81,7 @@ int main()
 			inputFile.read((char*)&packet.control2, sizeof(packet.control2));
 
 			// Print headers
-			printf("Packet length \n\thex: %#010X \n\tdecimal: %hu bytes\n", packet.length, packet.length);
+			printf("Packet length \n\t\t\thex: %#010X \n\t\t\tdecimal: %hu bytes\n", packet.length, packet.length);
 			printf("Packet flags \t\thex: %#010X\n", packet.flags);
 			printf("Packet crc32 \t\thex: %#010X\n", packet.crc32);
 			printf("Packet serial \t\thex: %#010X\n", packet.serial);
@@ -131,7 +131,7 @@ int main()
 
 		// No more input lines to read
 		cout << "Done reading/writing\n";
-		printf("Read %d packets: %d from game packets and %d BE packets", packetCount, packetCount - bePacketCount, bePacketCount);
+		printf("Read %d packets: %d from game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
 		inputFile.close();
 		fclose(outputFile);
 	}
@@ -144,12 +144,12 @@ int main()
 
 
 
-char* decryptLine(char* buffer)
+char* decryptPacket(char* buffer)
 {
 	return 0x00000000;
 }
 
-char* readLine(char* buffer)
+char* readPacket(char* buffer)
 {
 	//if (buffer[0] == 'B' && buffer[1]* == 'E')
 	return 0x00000000;
