@@ -24,7 +24,7 @@ int main()
 	inputFile.unsetf(std::ios::skipws);
 	// Get a file handle to output in binary mode
 	FILE* outputFile;
-	fopen_s(&outputFile, "output.dat", "wb");
+	fopen_s(&outputFile, "output.txt", "wb");
 
 	// Count number of lines written
 	unsigned int packetCount = 0;
@@ -48,7 +48,7 @@ int main()
 	{
 		// While there is more data to decrypt
 		// Each line should be a string of UDP data
-		while (!inputFile.eof())
+		while (inputFile.peek() != EOF)
 		{
 			packetCount++;
 			cout << "Reading packet #" << packetCount<< "\n";
@@ -58,15 +58,16 @@ int main()
 			// Read the packet headers into the struct
 			inputFile.read((char*)&packet.length, sizeof(packet.length));
 
-			// Battle Eye Client or server packet received, skip next 16+20=36 bytes
+			// Battle Eye Client or server packet received(17730 = EB or BE in ASCII)
+			// Skip next 16+20=36 bytes
 			// Client -> server skip 16 bytes
 			// Server -> client skip 20 bytes
 			if (packet.length == (uint16_t)17730)
 			{
 				bePacketCount += 2;
-				packetCount += 1;
+				packetCount++;
 				fprintf(outputFile, "Found BE Packet. . . Skipping next two packets.\n");
-				for (int i = 0; i <= 33; i++) {
+				for (int i = 0; i < 34; i++) {
 					inputFile.get();
 				}
 				continue;
@@ -80,7 +81,7 @@ int main()
 			inputFile.read((char*)&packet.control2, sizeof(packet.control2));
 
 			// Print headers
-			printf("Packet length \n\thex: %#010X \n\tdecimal: %hu\n", packet.length, packet.length);
+			printf("Packet length \n\thex: %#010X \n\tdecimal: %hu bytes\n", packet.length, packet.length);
 			printf("Packet flags \t\thex: %#010X\n", packet.flags);
 			printf("Packet crc32 \t\thex: %#010X\n", packet.crc32);
 			printf("Packet serial \t\thex: %#010X\n", packet.serial);
@@ -89,7 +90,8 @@ int main()
 			printf("Packet control2 \thex: %#010X\n", packet.control2);
 
 			// Write headers to file
-			fprintf(outputFile, "Packet length \n\thex: %#010X \n\tdecimal: %hu\n", packet.length, packet.length);
+			fprintf(outputFile, "Packet length \t\thex: %#010X \n\t\t\t\tdecimal: %hu bytes\n",
+				packet.length, packet.length);
 			//fprintf(outputFile, "Packet length: %d\n", packet.length);
 			fprintf(outputFile, "Packet flags \t\thex: %#010X\n", packet.flags);
 			fprintf(outputFile, "Packet crc32 \t\thex: %#010X\n", packet.crc32);
@@ -100,12 +102,12 @@ int main()
 
 			// Begin Print Data to stdout
 			unsigned short dataLength = packet.length - HEADER_SIZE;
-			printf("Packet data length \tdecimal: %hu\n", dataLength);
+			printf("Packet data length \tdecimal: %hu bytes\n", dataLength);
 
 			// Begin Write data to file
-			fprintf(outputFile, "Packet data length \tdecimal: %hu\n", dataLength, dataLength);
+			fprintf(outputFile, "Packet data length \tdecimal: %hu bytes\n", dataLength, dataLength);
 
-			char c;
+			// Allocate memory for the packet data
 			packet.data = new unsigned char[dataLength];
 
 			// Read the packet data into the struct
