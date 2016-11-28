@@ -20,7 +20,7 @@ struct packet {
 	uint32_t control2;
 
 	// data starts at length - 24 bytes
-	char* data;
+	unsigned char* data;
 
 };
 
@@ -46,7 +46,7 @@ enum PacketFlags : uint8_t
 	ALL_FLAGS = 0xffff
 };
 
-enum Offsets : uint8_t
+enum Offsets : uint16_t
 {
 	HEADER_SIZE = 24
 };

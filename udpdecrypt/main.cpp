@@ -1,6 +1,3 @@
-// udpdecrypt.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
@@ -15,8 +12,8 @@
 using namespace std;
 
 // Function Prototypes
-char decryptLine(char* buffer[]);
-char readLine(char* buffer[]);
+char* decryptLine(char* buffer);
+char* readLine(char* buffer);
 
 int main()
 {
@@ -26,11 +23,13 @@ int main()
 	// Stop eating new lines in binary mode!!!
 	inputFile.unsetf(std::ios::skipws);
 	// Get a file handle to output in binary mode
-	ofstream outputFile;
-	outputFile.open("output.dat", ios::out | ios::binary);
+	FILE* outputFile;
+	fopen_s(&outputFile, "output.dat", "wb");
 
 	// Count number of lines written
-	int count = 0;
+	unsigned int packetCount = 0;
+	// Count number of BE packets skipped
+	unsigned int bePacketCount = 0;
 	// Struct for holding file information
 	struct stat inputFileStat;
 
@@ -45,17 +44,34 @@ int main()
 		
 
 	// If the file exists for reading
-	if (inputFile.is_open() && outputFile.is_open())
+	if (inputFile.is_open())
 	{
 		// While there is more data to decrypt
 		// Each line should be a string of UDP data
 		while (!inputFile.eof())
 		{
-			cout << "Reading packet #" << count << "\n";
-			count++;
+			packetCount++;
+			cout << "Reading packet #" << packetCount<< "\n";
+			fprintf(outputFile, "Packet #%hu\n", packetCount);
+
 			struct packet packet;
 			// Read the packet headers into the struct
 			inputFile.read((char*)&packet.length, sizeof(packet.length));
+
+			// Battle Eye Client or server packet received, skip next 16+20=36 bytes
+			// Client -> server skip 16 bytes
+			// Server -> client skip 20 bytes
+			if (packet.length == (uint16_t)17730)
+			{
+				bePacketCount += 2;
+				packetCount += 1;
+				fprintf(outputFile, "Found BE Packet. . . Skipping next two packets.\n");
+				for (int i = 0; i <= 33; i++) {
+					inputFile.get();
+				}
+				continue;
+			}
+
 			inputFile.read((char*)&packet.flags, sizeof(packet.flags));
 			inputFile.read((char*)&packet.crc32, sizeof(packet.crc32));
 			inputFile.read((char*)&packet.serial, sizeof(packet.serial));
@@ -64,7 +80,7 @@ int main()
 			inputFile.read((char*)&packet.control2, sizeof(packet.control2));
 
 			// Print headers
-			printf("Packet length \n\thex: %#010X \n\tdecimal: %d\n", packet.length, packet.length);
+			printf("Packet length \n\thex: %#010X \n\tdecimal: %hu\n", packet.length, packet.length);
 			printf("Packet flags \t\thex: %#010X\n", packet.flags);
 			printf("Packet crc32 \t\thex: %#010X\n", packet.crc32);
 			printf("Packet serial \t\thex: %#010X\n", packet.serial);
@@ -72,33 +88,50 @@ int main()
 			printf("Packet control1 \thex: %#010X\n", packet.control1);
 			printf("Packet control2 \thex: %#010X\n", packet.control2);
 
-			// Begin Print Data
-			unsigned char dataLength = packet.length - HEADER_SIZE;
-			printf("Packet data length \tdecimal: %d\n", dataLength, dataLength);
+			// Write headers to file
+			fprintf(outputFile, "Packet length \n\thex: %#010X \n\tdecimal: %hu\n", packet.length, packet.length);
+			//fprintf(outputFile, "Packet length: %d\n", packet.length);
+			fprintf(outputFile, "Packet flags \t\thex: %#010X\n", packet.flags);
+			fprintf(outputFile, "Packet crc32 \t\thex: %#010X\n", packet.crc32);
+			fprintf(outputFile, "Packet serial \t\thex: %#010X\n", packet.serial);
+			fprintf(outputFile, "Packet origin \t\thex: %#010X\n", packet.origin);
+			fprintf(outputFile, "Packet control1 \thex: %#010X\n", packet.control1);
+			fprintf(outputFile, "Packet control2 \thex: %#010X\n", packet.control2);
+
+			// Begin Print Data to stdout
+			unsigned short dataLength = packet.length - HEADER_SIZE;
+			printf("Packet data length \tdecimal: %hu\n", dataLength);
+
+			// Begin Write data to file
+			fprintf(outputFile, "Packet data length \tdecimal: %hu\n", dataLength, dataLength);
 
 			char c;
-			packet.data = new char[dataLength];
+			packet.data = new unsigned char[dataLength];
 
 			// Read the packet data into the struct
-			for (int i = 0; i < dataLength; i++)
+			for (unsigned int i = 0; i < dataLength; i++)
 			{
 				packet.data[i] = inputFile.get();
 			}
 
+			// Print our data to stdout and write to output.dat
 			cout << "Data:\n";
-			for (int i = 0; i < dataLength; i++)
+			printf("%#04X", (unsigned char)packet.data[0]);
+			fprintf(outputFile, "%#04X", (unsigned char)packet.data[0]);
+			for (int i = 1; i < dataLength; i++)
 			{
-				printf("%#04X, ", (unsigned char)packet.data[i]);
+				printf(", %#04X", (unsigned char)packet.data[i]);
+				fprintf(outputFile, ", %#04X", (unsigned char)packet.data[i]);
 			}
-			cout << endl;
-			
+			cout << "\n\n";
+			fprintf(outputFile, "\n\n");
 		}
 
 		// No more input lines to read
 		cout << "Done reading/writing\n";
-		printf("Read %d packets", count);
+		printf("Read %d packets: %d from game packets and %d BE packets", packetCount, packetCount - bePacketCount, bePacketCount);
 		inputFile.close();
-		outputFile.close();
+		fclose(outputFile);
 	}
 	else
 	{
@@ -107,15 +140,17 @@ int main()
     return 0;
 }
 
-char decryptLine(char* buffer[])
+
+
+char* decryptLine(char* buffer)
 {
-	return 'a';
+	return 0x00000000;
 }
 
-char readLine(char* buffer[])
+char* readLine(char* buffer)
 {
 	//if (buffer[0] == 'B' && buffer[1]* == 'E')
-	return 'a';
+	return 0x00000000;
 }
 
 
