@@ -1,7 +1,4 @@
-#include "stdafx.h"
-#include <iostream>
-
-
+#include "public.h"
 #pragma once
 
 struct packet {
@@ -25,7 +22,7 @@ struct packet {
 };
 
 // NOTE: These are the old arma 2 flags, they could be wrong.
-enum PacketFlags : uint8_t
+enum PacketFlags : uint16_t
 {
 	VIM_FLAG = 0x8000,
 	/// Urgent message flag.

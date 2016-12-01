@@ -1,10 +1,4 @@
 #include "stdafx.h"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 // My header includes
 #include "packet.h"
