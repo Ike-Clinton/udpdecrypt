@@ -19,8 +19,7 @@ Packet serial 		hex: 0X4EBA0D10
 Packet origin 		hex: 0X4504842A
 Packet control1 	hex: 0XF0A0EB05
 Packet control2 	hex: 0X73F54111
-Packet data length 	decimal: 0 bytes
-0XFD
+
 
 Packet #3
 Packet length 		hex: 0X00000024 
@@ -43,8 +42,7 @@ Packet serial 		hex: 0X4EBA0D16
 Packet origin 		hex: 0X4504842A
 Packet control1 	hex: 0XF0A0EB05
 Packet control2 	hex: 0X73F54111
-Packet data length 	decimal: 0 bytes
-0XFD
+
 
 Packet #5
 Packet length 		hex: 0X00000024 
@@ -67,8 +65,7 @@ Packet serial 		hex: 0X4EBA0D14
 Packet origin 		hex: 0X4504842A
 Packet control1 	hex: 0XF0A0EB05
 Packet control2 	hex: 0X73F54111
-Packet data length 	decimal: 0 bytes
-0XFD
+
 
 Packet #7
 Packet length 		hex: 0X00000024 
@@ -91,8 +88,7 @@ Packet serial 		hex: 0X4EBA0D1A
 Packet origin 		hex: 0X4504842A
 Packet control1 	hex: 0XF0A0EB05
 Packet control2 	hex: 0X73F54111
-Packet data length 	decimal: 0 bytes
-0XFD
+
 
 Packet #9
 Packet length 		hex: 0X0000001C 

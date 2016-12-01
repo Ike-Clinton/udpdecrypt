@@ -102,29 +102,38 @@ int main()
 
 			// Begin Print Data to stdout
 			unsigned short dataLength = packet.length - HEADER_SIZE;
-			printf("Packet data length \tdecimal: %hu bytes\n", dataLength);
 
-			// Begin Write data to file
-			fprintf(outputFile, "Packet data length \tdecimal: %hu bytes\n", dataLength, dataLength);
 
-			// Allocate memory for the packet data
-			packet.data = new unsigned char[dataLength];
-
-			// Read the packet data into the struct
-			for (unsigned int i = 0; i < dataLength; i++)
+			// Print our data to stdout and write to output.dat if there is data in the packet
+			if (!(dataLength <= 0))
 			{
-				packet.data[i] = inputFile.get();
-			}
+				printf("Packet data length \tdecimal: %hu bytes\n", dataLength);
 
-			// Print our data to stdout and write to output.dat
-			cout << "Data:\n";
-			printf("%#04X", (unsigned char)packet.data[0]);
-			fprintf(outputFile, "%#04X", (unsigned char)packet.data[0]);
-			for (int i = 1; i < dataLength; i++)
-			{
-				printf(", %#04X", (unsigned char)packet.data[i]);
-				fprintf(outputFile, ", %#04X", (unsigned char)packet.data[i]);
+				// Begin Write data to file
+				fprintf(outputFile, "Packet data length \tdecimal: %hu bytes\n", dataLength, dataLength);
+
+				// Allocate memory for the packet data
+				packet.data = new unsigned char[dataLength];
+
+				// Read the packet data into the struct
+				for (unsigned int i = 0; i < dataLength; i++)
+				{
+					packet.data[i] = inputFile.get();
+				}
+				cout << "Data:\n";
+				printf("%#04X", (unsigned char)packet.data[0]);
+				fprintf(outputFile, "%#04X", (unsigned char)packet.data[0]);
+				for (int i = 1; i < dataLength; i++)
+				{
+					printf(", %#04X", (unsigned char)packet.data[i]);
+					fprintf(outputFile, ", %#04X", (unsigned char)packet.data[i]);
+				}
 			}
+			else
+			{
+				printf("Packet #%hu contained no data.", packetCount);
+			}
+			
 			cout << "\n\n";
 			fprintf(outputFile, "\n\n");
 		}
