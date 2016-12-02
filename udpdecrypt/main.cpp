@@ -160,14 +160,51 @@ int main()
 // Generate the table by which we will decrypt
 uint8_t* CreateXorTable(uint16_t seed)
 {
+	uint8_t* xorTable = new uint8_t[2048];
+
 	return 0x00000000;
 }
 
 // Two prototypes for the two different functions we see in executable
-uint16_t GetCryptTableOffset(uint32_t seed)
+uint16_t GetCryptTableOffset1(uint32_t seed)
 {
-	return 0x0000;
+	// esp + seed = seed
+	// ecx = value
+
+	//  mov     ecx, [esp + seed] ; Given by function def
+	uint32_t ecx = seed;
+	//	xor     ecx, 3D0000h
+	ecx ^= 0x3D0000;
+	//	sar     ecx, 10h
+	ecx = ecx >> 16;
+	//	xor     ecx, [esp + seed]
+	ecx ^= seed;
+	//	lea     ecx, [ecx + ecx * 8] 
+	// Clever ASM trick. See:
+    // https://en.wikibooks.org/wiki/X86_Disassembly/Code_Obfuscation#Non-Intuitive_Instructions#lea
+	// Common instruction substitutions
+	ecx *= 9;
+
+	//	mov     eax, ecx		
+	uint32_t eax = ecx;
+	//	sar     eax, 4
+	eax = eax >> 4;
+	//	xor     eax, ecx
+	eax ^= ecx;
+	//	imul    ecx, eax, 27D4EB2Dh
+	ecx = (eax * 0x27D4EB2D);
+	//	mov     eax, ecx
+	eax = ecx;
+	//	sar     eax, 0Fh
+	eax = eax >> 15;
+	//	xor     eax, ecx
+	eax ^= ecx;
+	//	and     eax, 7FFFh
+	eax &= 0x7FFF;
+
+	return (uint16_t) eax;
 }
+
 uint16_t GetCryptTableOffset2(uint32_t seed)
 {
 	return 0x0000;
