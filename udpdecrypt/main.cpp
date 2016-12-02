@@ -161,6 +161,10 @@ int main()
 uint8_t* CreateXorTable(uint16_t seed)
 {
 	uint8_t* xorTable = new uint8_t[2048];
+	uint8_t value = 0x00;
+
+	uint8_t count = 8;
+
 
 	return 0x00000000;
 }
@@ -177,6 +181,7 @@ uint16_t GetCryptTableOffset1(uint32_t seed)
 	ecx ^= 0x3D0000;
 	//	sar     ecx, 10h
 	ecx = ecx >> 16;
+	ecx = ~ecx; // we do bitwise NOT since it's signed shift (sar)
 	//	xor     ecx, [esp + seed]
 	ecx ^= seed;
 	//	lea     ecx, [ecx + ecx * 8] 
@@ -189,6 +194,7 @@ uint16_t GetCryptTableOffset1(uint32_t seed)
 	uint32_t eax = ecx;
 	//	sar     eax, 4
 	eax = eax >> 4;
+	eax = ~eax;
 	//	xor     eax, ecx
 	eax ^= ecx;
 	//	imul    ecx, eax, 27D4EB2Dh
@@ -197,6 +203,7 @@ uint16_t GetCryptTableOffset1(uint32_t seed)
 	eax = ecx;
 	//	sar     eax, 0Fh
 	eax = eax >> 15;
+	eax = ~eax;
 	//	xor     eax, ecx
 	eax ^= ecx;
 	//	and     eax, 7FFFh
