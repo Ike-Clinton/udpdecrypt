@@ -1,13 +1,23 @@
+/*
+ *Included with this repo is a .pcapng captured from wireshark which 
+ * will remain the same even throughout future updates of the .exe
+ * This is to establish a base line from which to proceed. If the 
+ * encryption changes in future updates, we don't want to have a 
+ * moving goal post.
+ */
+
 #include "stdafx.h"
+#include <stdint.h>
 
 // My header includes
 #include "packet.h"
+#include "public.h"
+#include "prototypes.h"
+
+
+
 
 using namespace std;
-
-// Function Prototypes
-char* decryptPacket(char* buffer);
-char* readPacket(char* buffer);
 
 int main()
 {
@@ -104,7 +114,7 @@ int main()
 				printf("Packet data length \tdecimal: %hu bytes\n", dataLength);
 
 				// Begin Write data to file
-				fprintf(outputFile, "Packet data length \tdecimal: %hu bytes\n", dataLength, dataLength);
+				fprintf(outputFile, "Packet data length \tdecimal: %hu bytes\n", dataLength);
 
 				// Allocate memory for the packet data
 				packet.data = new unsigned char[dataLength];
@@ -147,15 +157,30 @@ int main()
 
 
 
-char* decryptPacket(char* buffer)
+// Generate the table by which we will decrypt
+uint8_t* CreateXorTable(uint16_t seed)
 {
 	return 0x00000000;
 }
 
-char* readPacket(char* buffer)
+// Two prototypes for the two different functions we see in executable
+uint16_t GetCryptTableOffset(uint32_t seed)
 {
-	//if (buffer[0] == 'B' && buffer[1]* == 'E')
+	return 0x0000;
+}
+uint16_t GetCryptTableOffset2(uint32_t seed)
+{
+	return 0x0000;
+}
+
+// Takes in an xorTable, and the bytes we will decrypt
+// Output is the decrypted bytes
+uint8_t* decryptBytes(uint8_t* bytes, uint8_t* xorTable)
+{
 	return 0x00000000;
 }
+
+
+
 
 
