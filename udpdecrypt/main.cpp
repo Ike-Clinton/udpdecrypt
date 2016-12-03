@@ -147,6 +147,19 @@ int main()
 		printf("Read %d packets: %d from game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
 		inputFile.close();
 		fclose(outputFile);
+		printf("Allocating memory on the heap\n");
+		uint8_t* xorTable = new uint8_t[2048];
+		uint16_t seed = 65068;
+		printf("Memory allocated\nEntering CreateXorTable\n");
+		CreateXorTable(seed, xorTable);
+		printf("Left XOR Table, begin print\n");
+			
+		for (int i = 0; i < 2048; i++)
+		{
+			cout << (char*)xorTable;
+		}
+		// Free allocated memory
+		delete[] xorTable;
 	}
 	else
 	{
@@ -158,19 +171,73 @@ int main()
 
 
 // Generate the table by which we will decrypt
-uint8_t* CreateXorTable(uint16_t seed)
+uint8_t* CreateXorTable(uint16_t seed, uint8_t* xorTable)
 {
-	uint8_t* xorTable = new uint8_t[2048];
+	printf("Begin generate XOR table\n");
 	uint8_t value = 0x00;
+	//xor     edx, edx
+	uint8_t edx = 0;
+	// LABEL A
+	//.text : 004E50A2 loc_4E50A2 : ; CODE XREF : XX_CRC_32 + 30j
+	//mov     eax, edx
+	if (edx < 0x100)
+	{
+		uint8_t eax = edx;
+		//mov     ecx, 8
+		uint8_t ecx = 8;
+		//shl     eax, 18h; Header decryption
+		ecx = ecx << 24;
+		//lea     esp, [esp + 0]
+		// ???????????????
+		// LABEL B
+		//.text : 004E50B0 loc_4E50B0 : ; CODE XREF : XX_CRC_32 + 20j
+		//test    eax, eax
+		//jns     short loc_4E50BD
+		int count = 0;
+		for (int i = 0; i >= 0; i++)
+		{
+			if (eax < 0)
+			{
+				//add     eax, eax
+				eax *= 2;
+				//xor     eax, 4C11DB7h
+				eax ^= 0x4C11DB7;
+				//jmp     LABEL_D
 
-	uint8_t count = 8;
+			}
+			else
+			{
+				// LABEL C
+				// add     eax, eax
+				eax *= 2;
+
+			}
+			// LABEL D
+			// dec     ecx
+			ecx--;
+			// jnz     LABEL_B
+		}
+
+		// mov     dword_1005FB0[edx * 4], eax
+		xorTable[count] = eax;
+		count++;
+		// inc     edx
+		edx += 1;
+	} // cmp     edx, 100h ;	jl      short loc_4E50A2
+	
+
+	
+	// Global, the table has been generated
+	// mov     xx_table_is_generated, 1
+	// retn
+
 
 
 	return 0x00000000;
 }
 
 // Two prototypes for the two different functions we see in executable
-uint16_t GetCryptTableOffset1(uint32_t seed)
+uint16_t GetCryptTableOffset2(uint32_t seed)
 {
 	// esp + seed = seed
 	// ecx = value
@@ -212,8 +279,9 @@ uint16_t GetCryptTableOffset1(uint32_t seed)
 	return (uint16_t) eax;
 }
 
-uint16_t GetCryptTableOffset2(uint32_t seed)
+uint16_t GetCryptTableOffset1(uint32_t seed)
 {
+	// I think this, the more complicated one is for receiving?
 	return 0x0000;
 }
 

@@ -8,10 +8,10 @@
  */
 
 // Generate the table by which we will decrypt
-uint8_t* CreateXorTable(uint16_t seed);
+uint8_t* CreateXorTable(uint16_t seed, uint8_t* xorTable);
 
 // Two prototypes for the two different functions we see in executable
-uint16_t GetCryptTableOffset(uint32_t seed);
+uint16_t GetCryptTableOffset1(uint32_t seed);
 uint16_t GetCryptTableOffset2(uint32_t seed);
 
 // Takes in an xorTable, and the bytes we will decrypt
