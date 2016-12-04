@@ -168,7 +168,7 @@ int main()
 	}
 	else
 	{
-		cout << "Could not open files";
+		printf("\n\tERROR: Could not open files!\n");
 	}
     return 0;
 }
