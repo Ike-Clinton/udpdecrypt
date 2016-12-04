@@ -7,13 +7,13 @@
  */
 
 #include "stdafx.h"
-#include <stdint.h>
+
 
 // My header includes
-#include "packet.h"
 #include "public.h"
-#include "prototypes.h"
-
+#include "packet.h"
+#include "crypt.h"
+#include "packetStats.h"
 
 
 
@@ -62,11 +62,11 @@ int main()
 			// Read the packet headers into the struct
 			inputFile.read((char*)&packet.length, sizeof(packet.length));
 
-			// Battle Eye Client or server packet received(17730 = EB or BE in ASCII)
+			// Battle Eye Client or server packet received(0X4542 = EB or BE in ASCII)
 			// Skip next 16+20=36 bytes
-			// Client -> server skip 16 bytes
-			// Server -> client skip 20 bytes
-			if (packet.length == (uint16_t)17730)
+			// Client -> server skip 40 bytes
+			// Server -> client skip 32 bytes
+			if (packet.length == 0x4542)
 			{
 				bePacketCount += 2;
 				packetCount++;
@@ -74,6 +74,7 @@ int main()
 				for (int i = 0; i < 34; i++) {
 					inputFile.get();
 				}
+				// Go back to reading the next packet length
 				continue;
 			}
 
@@ -142,21 +143,25 @@ int main()
 			fprintf(outputFile, "\n\n");
 		}
 
-		// No more input lines to read
+		// Finished processing packets
 		cout << "Done reading/writing\n";
-		printf("Read %d packets: %d from game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
+		// Make sure we didn't screw something up with BE packets
+		if (!(bePacketCount % 2 == 0))
+			printf("\n\tERROR: Something went wrong with BattlEye packet count.\n\tIt should be divisible by 2\n");
+		printf("Read %d packets: %d game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
+		fprintf(outputFile, "Read %d packets: %d from game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
+
+		// Close the files for r/w
 		inputFile.close();
 		fclose(outputFile);
-		printf("Allocating memory on the heap\n");
+
 		uint8_t* xorTable = new uint8_t[2048];
 		uint16_t seed = 65068;
-		printf("Memory allocated\nEntering CreateXorTable\n");
+		printf("Creating XOR Table\n");
 		CreateXorTable(seed, xorTable);
-		printf("Left XOR Table, begin print\n");
-			
 		for (int i = 0; i < 2048; i++)
 		{
-			cout << (char*)xorTable;
+			printf(" %#04X", (unsigned char)xorTable[i]);
 		}
 		// Free allocated memory
 		delete[] xorTable;
@@ -170,127 +175,8 @@ int main()
 
 
 
-// Generate the table by which we will decrypt
-uint8_t* CreateXorTable(uint16_t seed, uint8_t* xorTable)
-{
-	printf("Begin generate XOR table\n");
-	uint8_t value = 0x00;
-	//xor     edx, edx
-	uint8_t edx = 0;
-	// LABEL A
-	//.text : 004E50A2 loc_4E50A2 : ; CODE XREF : XX_CRC_32 + 30j
-	//mov     eax, edx
-	if (edx < 0x100)
-	{
-		uint8_t eax = edx;
-		//mov     ecx, 8
-		uint8_t ecx = 8;
-		//shl     eax, 18h; Header decryption
-		ecx = ecx << 24;
-		//lea     esp, [esp + 0]
-		// ???????????????
-		// LABEL B
-		//.text : 004E50B0 loc_4E50B0 : ; CODE XREF : XX_CRC_32 + 20j
-		//test    eax, eax
-		//jns     short loc_4E50BD
-		int count = 0;
-		for (int i = 0; i >= 0; i++)
-		{
-			if (eax < 0)
-			{
-				//add     eax, eax
-				eax *= 2;
-				//xor     eax, 4C11DB7h
-				eax ^= 0x4C11DB7;
-				//jmp     LABEL_D
-
-			}
-			else
-			{
-				// LABEL C
-				// add     eax, eax
-				eax *= 2;
-
-			}
-			// LABEL D
-			// dec     ecx
-			ecx--;
-			// jnz     LABEL_B
-		}
-
-		// mov     dword_1005FB0[edx * 4], eax
-		xorTable[count] = eax;
-		count++;
-		// inc     edx
-		edx += 1;
-	} // cmp     edx, 100h ;	jl      short loc_4E50A2
-	
-
-	
-	// Global, the table has been generated
-	// mov     xx_table_is_generated, 1
-	// retn
 
 
-
-	return 0x00000000;
-}
-
-// Two prototypes for the two different functions we see in executable
-uint16_t GetCryptTableOffset2(uint32_t seed)
-{
-	// esp + seed = seed
-	// ecx = value
-
-	//  mov     ecx, [esp + seed] ; Given by function def
-	uint32_t ecx = seed;
-	//	xor     ecx, 3D0000h
-	ecx ^= 0x3D0000;
-	//	sar     ecx, 10h
-	ecx = ecx >> 16;
-	ecx = ~ecx; // we do bitwise NOT since it's signed shift (sar)
-	//	xor     ecx, [esp + seed]
-	ecx ^= seed;
-	//	lea     ecx, [ecx + ecx * 8] 
-	// Clever ASM trick. See:
-    // https://en.wikibooks.org/wiki/X86_Disassembly/Code_Obfuscation#Non-Intuitive_Instructions#lea
-	// Common instruction substitutions
-	ecx *= 9;
-
-	//	mov     eax, ecx		
-	uint32_t eax = ecx;
-	//	sar     eax, 4
-	eax = eax >> 4;
-	eax = ~eax;
-	//	xor     eax, ecx
-	eax ^= ecx;
-	//	imul    ecx, eax, 27D4EB2Dh
-	ecx = (eax * 0x27D4EB2D);
-	//	mov     eax, ecx
-	eax = ecx;
-	//	sar     eax, 0Fh
-	eax = eax >> 15;
-	eax = ~eax;
-	//	xor     eax, ecx
-	eax ^= ecx;
-	//	and     eax, 7FFFh
-	eax &= 0x7FFF;
-
-	return (uint16_t) eax;
-}
-
-uint16_t GetCryptTableOffset1(uint32_t seed)
-{
-	// I think this, the more complicated one is for receiving?
-	return 0x0000;
-}
-
-// Takes in an xorTable, and the bytes we will decrypt
-// Output is the decrypted bytes
-uint8_t* decryptBytes(uint8_t* bytes, uint8_t* xorTable)
-{
-	return 0x00000000;
-}
 
 
 

@@ -1,6 +1,9 @@
 #include "public.h"
 #pragma once
 
+// Define the structure of game packets
+#ifndef PACKET_H
+#define PACKET_H
 struct packet {
 	// Header is 24 bytes
 	// Length of the UDP data
@@ -18,8 +21,8 @@ struct packet {
 
 	// data starts at length - 24 bytes
 	unsigned char* data;
-
 };
+#endif
 
 // NOTE: These are the old arma 2 flags, they could be wrong.
 enum PacketFlags : uint16_t
@@ -47,3 +50,14 @@ enum Offsets : uint16_t
 {
 	HEADER_SIZE = 24
 };
+
+/*
+Notes:
+FLAG: 2969 Has data payload of 12 bytes
+FLAG: 2169 has data payload of 4 bytes
+FLAG: 2128 Has no data payload
+FLAG: 2328 has no data payload
+
+
+
+*/
