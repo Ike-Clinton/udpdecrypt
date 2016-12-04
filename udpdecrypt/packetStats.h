@@ -1,8 +1,7 @@
 #include "public.h"
 #pragma once
 
-void readPacketsAndPrint();
-void readPacketsAndPrintToFile();
+int readPacketsAndPrint(std::string inputFileName, std::string outputFileName = "");
 
 void printFlagStats();
 void fprintFlagStats(FILE* outputFile);
