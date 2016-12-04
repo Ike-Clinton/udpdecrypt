@@ -17,8 +17,6 @@
 
 
 
-
-
 int main()
 {
 	std::string inputFileName = "input.dat";
@@ -35,8 +33,10 @@ int main()
 	}
 	else
 	{
-		printf("Error while processing packets");
+		printf("ERROR: Error while processing packets\n");
 	}
+
+	printFlagStats(outputFileName);
 		
 	
     return 0;

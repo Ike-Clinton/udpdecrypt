@@ -3,14 +3,10 @@
 
 int readPacketsAndPrint(std::string inputFileName, std::string outputFileName = "");
 
-void printFlagStats();
-void fprintFlagStats(FILE* outputFile);
+int printFlagStats(std::string inputFileName, std::string outputFileName = "");
 
-void printSerialStats();
-void fprintSerialStats(FILE* outputFile);
+int printSerialStats(std::string inputFileName, std::string outputFileName = "");
 
-void printOriginStats();
-void fprintOriginStats(FILE* outputFile);
+int printOriginStats(std::string inputFileName, std::string outputFileName = "");
 
-void printControlStats();
-void fprintControlStats(FILE* outputFile);
+int printControlStats(std::string inputFileName, std::string outputFileName = "");

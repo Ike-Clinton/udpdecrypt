@@ -2,6 +2,8 @@
 #include "public.h"
 #include "packet.h"
 
+#include <map>
+
 using namespace std;
 
 int readPacketsAndPrint(string inputFileName, string outputFileName)
@@ -142,27 +144,48 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 
 				// Allocate memory for the packet data
 				packet.data = new unsigned char[dataLength];
-
 				// Read the packet data into the struct
 				for (unsigned int i = 0; i < dataLength; i++)
 				{
 					packet.data[i] = inputFile.get();
 				}
-				cout << "Data:\n";
-				printf("%#04X", (unsigned char)packet.data[0]);
-				if(printToFile)
-					fprintf(outputFile, "%#04X", (unsigned char)packet.data[0]);
+
+
+				
+				if (printToFile)
+				{
+					fprintf(outputFile, "Data:\n%#04X", (unsigned char)packet.data[0]);
+				}
+				else
+				{
+					printf("Data:\n%#04X", (unsigned char)packet.data[0]);
+				}
+					
 
 				for (int i = 1; i < dataLength; i++)
 				{
-					printf(", %#04X", (unsigned char)packet.data[i]);
-					if(printToFile)
+					
+					if (printToFile)
+					{
 						fprintf(outputFile, ", %#04X", (unsigned char)packet.data[i]);
+					}
+					else
+					{
+						printf(", %#04X", (unsigned char)packet.data[i]);
+					}
 				}
 			}
 			else
 			{
-				printf("Packet #%hu contained no data.", packetCount);
+				if (printToFile)
+				{
+					fprintf(outputFile, "Packet #%hu contained no data.", packetCount);
+				}
+				else
+				{
+					printf("Packet #%hu contained no data.", packetCount);
+				}
+				
 			}
 
 			
@@ -181,9 +204,17 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 		// Make sure we didn't screw something up with BE packets
 		if (!(bePacketCount % 2 == 0))
 			printf("\n\tERROR: Something went wrong with BattlEye packet count.\n\tIt should be divisible by 2\n");
-		printf("Read %d packets: %d game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
-		if(printToFile)
+
+		
+		if (printToFile)
+		{
 			fprintf(outputFile, "Read %d packets: %d from game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
+		}
+		else
+		{
+			printf("Read %d packets: %d game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
+		}
+			
 
 		// Close the files for r/w
 		inputFile.close();
@@ -212,40 +243,50 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 
 }
 
-void printFlagStats()
+int printFlagStats(string inputFileName, string outputFileName)
 {
+	std::map<DWORD, int> flagMap;
+	string flagStr = "flags";
+	ifstream inputFile;
+	inputFile.open(inputFileName, ios::in);
 
+	FILE* outputFile = NULL;
+
+	bool printToFile = FALSE;
+	if (outputFileName != "")
+	{
+		fopen_s(&outputFile, outputFileName.c_str(), "wb");
+		printToFile = TRUE;
+	}
+
+	while (inputFile.peek() != EOF)
+	{
+		
+
+	}
+
+
+
+	return 0;
 }
-void fprintFlagStats(FILE* outputFile)
+
+
+int printSerialStats(string inputFileName, string outputFileName)
 {
-
+	return 0;
 }
 
-void printSerialStats()
+
+int printOriginStats(string inputFileName, string outputFileName)
 {
-
+	return 0;
 }
-void fprintSerialStats(FILE* outputFile)
+
+
+int printControlStats(string inputFileName, string outputFileName)
 {
-
+	return 0;
 }
 
-void printOriginStats()
-{
-
-}
-void fprintOriginStats(FILE* outputFile)
-{
-
-}
-
-void printControlStats()
-{
-
-}
-void fprintControlStats(FILE* outputFile)
-{
-
-}
 
 
