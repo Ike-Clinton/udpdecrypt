@@ -3,6 +3,8 @@
 #include "packet.h"
 
 #include <map>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -245,8 +247,11 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 
 int printFlagStats(string inputFileName, string outputFileName)
 {
-	std::map<DWORD, int> flagMap;
+	int lineCount = 0;
+	std::map<string, int> flagMap;
 	string flagStr = "flags";
+	string readStr;
+	string flagVal;
 	ifstream inputFile;
 	inputFile.open(inputFileName, ios::in);
 
@@ -262,8 +267,36 @@ int printFlagStats(string inputFileName, string outputFileName)
 	while (inputFile.peek() != EOF)
 	{
 		
+		inputFile >> readStr;
+		if (readStr == flagStr)
+		{
+			inputFile >> readStr;
+			inputFile >> flagVal;
+			++flagMap[flagVal];
+		}
+	}
+
+
+
+
+	std::vector<std::pair<string, int>> pairs;
+	for (auto itr = flagMap.begin(); itr != flagMap.end(); ++itr)
+		pairs.push_back(*itr);
+
+	sort(pairs.begin(), pairs.end(), [=](std::pair<string, int>& a, std::pair<string, int>& b)
+	{
+		return a.second < b.second;
+	}
+	);
+
+
+	for (auto iterator = flagMap.begin(); iterator != flagMap.end(); iterator++)
+	{
+		cout << "First: " << iterator->first << "\n";
+		cout << "Second: " << iterator->second << "\n";
 
 	}
+
 
 
 
