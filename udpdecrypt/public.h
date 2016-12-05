@@ -9,6 +9,10 @@
 #include <stdint.h>
 #include <Windows.h>
 #include <inttypes.h>
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <iterator>
 
 #endif
 

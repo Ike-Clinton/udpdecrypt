@@ -2,9 +2,7 @@
 #include "public.h"
 #include "packet.h"
 
-#include <map>
-#include <vector>
-#include <algorithm>
+
 
 using namespace std;
 
@@ -245,6 +243,24 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 
 }
 
+/*
+From: https://stackoverflow.com/questions/5056645/sorting-stdmap-using-value
+*/
+template<typename A, typename B>
+std::pair<B, A> flip_pair(const std::pair<A, B> &p)
+{
+	return std::pair<B, A>(p.second, p.first);
+}
+
+template<typename A, typename B>
+std::multimap<B, A> flip_map(const std::map<A, B> &src)
+{
+	std::multimap<B, A> dst;
+	std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
+		flip_pair<A, B>);
+	return dst;
+}
+
 int printFlagStats(string inputFileName, string outputFileName)
 {
 	int lineCount = 0;
@@ -275,46 +291,24 @@ int printFlagStats(string inputFileName, string outputFileName)
 			++flagMap[flagVal];
 		}
 	}
-
-
-
-
-	std::vector<std::pair<string, int>> pairs;
-	for (auto itr = flagMap.begin(); itr != flagMap.end(); ++itr)
-		pairs.push_back(*itr);
-
-	sort(pairs.begin(), pairs.end(), [=](std::pair<string, int>& a, std::pair<string, int>& b)
+	// Sort map by value	
+	std::multimap<int, string> sortedMap = flip_map(flagMap);
+	for (auto iterator = sortedMap.begin(); iterator != sortedMap.end(); iterator++)
 	{
-		return a.second < b.second;
+		cout << "Flag: " << iterator->second << " - " << iterator->first << "\n";
 	}
-	);
-
-
-	for (auto iterator = flagMap.begin(); iterator != flagMap.end(); iterator++)
-	{
-		cout << "First: " << iterator->first << "\n";
-		cout << "Second: " << iterator->second << "\n";
-
-	}
-
-
-
-
 	return 0;
 }
-
 
 int printSerialStats(string inputFileName, string outputFileName)
 {
 	return 0;
 }
 
-
 int printOriginStats(string inputFileName, string outputFileName)
 {
 	return 0;
 }
-
 
 int printControlStats(string inputFileName, string outputFileName)
 {
