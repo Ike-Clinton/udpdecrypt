@@ -28,7 +28,7 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 	// Count number of packets processed
 	unsigned int packetCount = 0;
 	// Count number of BE packets skipped
-	unsigned int bePacketCount = 0;
+	// unsigned int bePacketCount = 0;
 
 
 	// Struct for holding file information
@@ -64,33 +64,36 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 				
 				
 
+
+
+
+			// Now we just filter out the packets in wireshark...
+			//// Battle Eye Client or server packet received(0X4542 = EB or BE in ASCII)
+			//// Skip next 16+20=36 bytes
+			//// Client -> server skip 20 bytes
+			//// Server -> client skip 16 bytes
+			//if (packet.length == 0x4542)
+			//{
+			//	bePacketCount += 2;
+			//	packetCount++;
+			//	if (printToFile)
+			//	{
+			//		fprintf(outputFile, "Found BattlEye Packet. . . Skipping next 36 bytes.\n");
+			//	}
+			//	else
+			//	{
+			//		printf("Found BattlEye Packet. . . Skipping next 36 bytes.\n");
+			//	}
+			//	for (int i = 0; i < 34; i++) {
+			//		inputFile.get();
+			//	}
+			//	// Go back to reading the next packet length
+			//	continue;
+			//}
+
 			struct packet packet;
 			// Read the packet headers into the struct
 			inputFile.read((char*)&packet.length, sizeof(packet.length));
-
-			// Battle Eye Client or server packet received(0X4542 = EB or BE in ASCII)
-			// Skip next 16+20=36 bytes
-			// Client -> server skip 20 bytes
-			// Server -> client skip 16 bytes
-			if (packet.length == 0x4542)
-			{
-				bePacketCount += 2;
-				packetCount++;
-				if (printToFile)
-				{
-					fprintf(outputFile, "Found BattlEye Packet. . . Skipping next 36 bytes.\n");
-				}
-				else
-				{
-					printf("Found BattlEye Packet. . . Skipping next 36 bytes.\n");
-				}
-				for (int i = 0; i < 34; i++) {
-					inputFile.get();
-				}
-				// Go back to reading the next packet length
-				continue;
-			}
-
 			// Read packet data into the struct
 			inputFile.read((char*)&packet.flags, sizeof(packet.flags));
 			inputFile.read((char*)&packet.crc32, sizeof(packet.crc32));
@@ -202,17 +205,17 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 
 		// Finished processing packets
 		// Make sure we didn't screw something up with BE packets
-		if (!(bePacketCount % 2 == 0))
-			printf("\n\tERROR: Something went wrong with BattlEye packet count.\n\tIt should be divisible by 2\n");
+		//if (!(bePacketCount % 2 == 0))
+		//	printf("\n\tERROR: Something went wrong with BattlEye packet count.\n\tIt should be divisible by 2\n");
 
 		
 		if (printToFile)
 		{
-			fprintf(outputFile, "Read %d packets: %d from game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
+			fprintf(outputFile, "Read %d packets.\n", packetCount);
 		}
 		else
 		{
-			printf("Read %d packets: %d game packets and %d BE packets.\n", packetCount, packetCount - bePacketCount, bePacketCount);
+			printf("Read %d packets.\n", packetCount);
 		}
 			
 

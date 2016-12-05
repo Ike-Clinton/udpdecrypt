@@ -36,6 +36,7 @@ int main()
 		printf("ERROR: Error while processing packets\n");
 	}
 
+	printf("Printing stats. . .\n");
 	//printFlagStats(outputFileName);
 	printFlagStats(outputFileName, statsFileName);
 		
