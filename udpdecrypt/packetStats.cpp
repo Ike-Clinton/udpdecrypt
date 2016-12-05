@@ -261,22 +261,28 @@ std::multimap<B, A> flip_map(const std::map<A, B> &src)
 	return dst;
 }
 
-int printFlagStats(string inputFileName, string outputFileName)
+int printFlagStats(string inputFileName, string statsFileName)
 {
-	int lineCount = 0;
 	std::map<string, int> flagMap;
 	string flagStr = "flags";
 	string readStr;
 	string flagVal;
 	ifstream inputFile;
+	
 	inputFile.open(inputFileName, ios::in);
 
-	FILE* outputFile = NULL;
+	if (!inputFile.is_open())
+	{
+		cout << "\nError opening file for reading";
+		return 1;
+	}
+
+	FILE* statsFile = NULL;
 
 	bool printToFile = FALSE;
-	if (outputFileName != "")
+	if (statsFileName != "")
 	{
-		fopen_s(&outputFile, outputFileName.c_str(), "wb");
+		fopen_s(&statsFile, statsFileName.c_str(), "wb");
 		printToFile = TRUE;
 	}
 
@@ -295,8 +301,22 @@ int printFlagStats(string inputFileName, string outputFileName)
 	std::multimap<int, string> sortedMap = flip_map(flagMap);
 	for (auto iterator = sortedMap.begin(); iterator != sortedMap.end(); iterator++)
 	{
-		cout << "Flag: " << iterator->second << " - " << iterator->first << "\n";
+		if (printToFile)
+		{
+			
+			fprintf(statsFile, "Flag: %s - %d\n", iterator->second.c_str(), iterator->first);
+		}
+		else
+		{
+			cout << "Flag: " << iterator->second << " - " << iterator->first << "\n";
+		}
+		
 	}
+
+	inputFile.close();
+	if(printToFile)
+		fclose(statsFile);
+
 	return 0;
 }
 

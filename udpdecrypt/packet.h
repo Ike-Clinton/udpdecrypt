@@ -50,14 +50,3 @@ enum Offsets : uint16_t
 {
 	HEADER_SIZE = 24
 };
-
-/*
-Notes:
-FLAG: 2969 Has data payload of 12 bytes
-FLAG: 2169 has data payload of 4 bytes
-FLAG: 2128 Has no data payload
-FLAG: 2328 has no data payload
-
-
-
-*/

@@ -11,7 +11,6 @@
 
 // My header includes
 #include "public.h"
-#include "packet.h"
 #include "crypt.h"
 #include "packetStats.h"
 
@@ -21,6 +20,7 @@ int main()
 {
 	std::string inputFileName = "input.dat";
 	std::string outputFileName = "output.txt";
+	std::string statsFileName = "stats.txt";
 
 	// Just read packets and print to console
 	// readPacketsAndPrint(inputFileName);
@@ -36,7 +36,8 @@ int main()
 		printf("ERROR: Error while processing packets\n");
 	}
 
-	printFlagStats(outputFileName);
+	//printFlagStats(outputFileName);
+	printFlagStats(outputFileName, statsFileName);
 		
 	
     return 0;
