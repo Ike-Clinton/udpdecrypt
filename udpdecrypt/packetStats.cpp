@@ -61,12 +61,6 @@ int readPacketsAndPrint(string inputFileName, string outputFileName)
 			{
 				printf("Packet #%hu\n", packetCount);
 			}
-				
-				
-
-
-
-
 			// Now we just filter out the packets in wireshark...
 			//// Battle Eye Client or server packet received(0X4542 = EB or BE in ASCII)
 			//// Skip next 16+20=36 bytes

@@ -36,9 +36,28 @@ int main()
 		printf("ERROR: Error while processing packets\n");
 	}
 
-	printf("Printing stats. . .\n");
-	//printFlagStats(outputFileName);
+	printf("Writing stats to %s . . .\n", statsFileName.c_str());
+
 	printFlagStats(outputFileName, statsFileName);
+
+	//uint8_t* xorTable = new uint8_t[2048];
+	//createXorTable(65068, xorTable);
+
+	//for (int i = 0; i < 2048; i++)
+	//{
+	//	printf("%#04X ", xorTable[i]);
+	//	
+	//}
+	//uint32_t cto = getCryptTableOffset2(0x4EBB3838);
+
+	//std::cout << cto;
+	//for (int i = 0; i < 8; i++)
+	//{
+	//	printf("%#04X", xorTable[(cto + i) & 0x7FF]);
+	//}
+
+
+
 		
 	
     return 0;

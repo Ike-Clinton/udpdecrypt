@@ -2,61 +2,44 @@
 #include "public.h"
 
 // Generate the table by which we will decrypt
-void CreateXorTable(uint16_t seed, uint8_t* xorTable)
+// Use 65068
+void createXorTable(uint16_t seed, uint8_t* xorTable)
 {
-	//XX_CRC_32       proc near; CODE XREF : xx_call_crc + 12p
-	//	; XX_decrypt + 1Bp
-	//	xor     edx, edx
 	long edx = 0;
+	long eax;
+	long ecx;
+	int count = 0;
 
-	//	xx_crc_main_loop : ; CODE XREF : XX_CRC_32 + 30j
-	//	mov     eax, edx
-	long eax = 0;
-	//	mov     ecx, 8
-	long ecx = 8;
-	//	shl     eax, 18h; Header decryption
-	eax = eax << 0x18;
-	//	lea     esp, [esp + 0]
-	// Save stack state??
-	while (edx < 0x100) { //	cmp     edx, 100h
-		printf("EDX: %lx\n", edx);
-		while (ecx >= 0) { 	//	jnz     short xx_crc_inner_loop
-			printf("\n\tECX: %lx", ecx);
-			//printf("%\n" PRIu32, ecx);
-			//	xx_crc_inner_loop:; CODE XREF : XX_CRC_32 + 20j
-			//	test    eax, eax
-			//	jns     short xx_lbl_A
-			if (eax >= 0) //xx_lbl_A:; CODE XREF : XX_CRC_32 + 12j
+	while (edx < 0x100) {
+		//printf("\nEDX: %#08X", edx);
+		eax = 0;
+		ecx = 8;
+		eax = eax << 0x18;
+		while (ecx > 0) {
+			//printf("\n\tECX: %#08X", ecx);
+
+			if (eax > 0)
 			{
-				//	add     eax, eax
 				eax += eax;
 			}
 			else
 			{
-				//	add     eax, eax
 				eax += eax;
-				//	xor     eax, 4C11DB7h
 				eax ^= 0x4C11Db7;
-				//	jmp     short xx_lbl_B
 			}
-			//	xx_lbl_B : ; CODE XREF : XX_CRC_32 + 1Bj
-			//	dec     ecx
+			count++;
 			ecx--;
 		}
-		//	mov     xx_packet_xor_table[edx * 4], eax
-		xorTable[edx] = eax;
-		//	inc     edx
+		xorTable[edx] = (eax >> 24) & 0xFF;
+		xorTable[edx+1] = (eax >> 16) & 0xFF;
+		xorTable[edx+2] = (eax >> 8) & 0xFF;
+		xorTable[edx+3] = eax & 0xFF;
 		edx++;
-
-	}	//	cmp     edx, 100h ; jl      short xx_crc_main_loop
-
-		//	mov     xx_table_is_generated, 1
-		// sentinel_value = 1;
-		//	retn
+	}
 }
 
 // Two prototypes for the two different functions we see in executable
-uint16_t GetCryptTableOffset2(uint32_t seed)
+uint16_t getCryptTableOffset2(uint32_t seed)
 {
 	// esp + seed = seed
 	// ecx = value
@@ -98,7 +81,7 @@ uint16_t GetCryptTableOffset2(uint32_t seed)
 	return (uint16_t)eax;
 }
 
-uint16_t GetCryptTableOffset1(uint32_t seed)
+uint16_t getCryptTableOffset1(uint32_t seed)
 {
 	// I think this, the more complicated one is for receiving?
 	return 0x0000;

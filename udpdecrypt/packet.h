@@ -50,3 +50,9 @@ enum Offsets : uint16_t
 {
 	HEADER_SIZE = 24
 };
+
+/*
+I think a network type of 3 indicates a network message which contains many network messages to be received in one packet. 
+A type of 12 appears to be player chat and a type of 10 indicates public variable information. 
+There might be a prefix'd length or further decoding required that is throwing me off.
+*/
